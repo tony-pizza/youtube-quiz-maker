@@ -1,11 +1,14 @@
 <?php
 
+// The Quiz class contains all the business logic
+
 class Quiz {
 
   public $question;
   public $answer;
   public $result;
 
+  // The main method to call to process a new answer
   public function process($question, $answer) {
     $this->question = $question;
     $this->answer = $answer;
@@ -14,6 +17,9 @@ class Quiz {
     $this->record_answer();
     $this->handle_redirect();
   }
+
+
+// Helper methods for retrieving quiz config data
 
   public function get_quiz_data() {
     // Only parse data JSON once, store in property for reuse
@@ -56,6 +62,7 @@ class Quiz {
     return $this->get_answers_data($question)[$answer];
   }
 
+
   public function validate_answer() {
     if ($this->question === null) {
       $this->log_error_and_exit('missing question');
@@ -71,6 +78,15 @@ class Quiz {
     }
   }
 
+
+// Cookie stuff
+ 
+  // We use the cookie to keep track of a user's answers during quiz-taking.
+  // The cookie is a serialized JSON object of question/answer data representing
+  //   a user's answers thus far (ex: { "fav-color": "blue", "fav-animal": "goat" }).
+
+  // Helper method for fetching and deserializing the cookie
+  // The cookie is cached in a local $_cookie property
   public function get_cookie() {
     if ($this->_cookie === null) {
       if ($_COOKIE[COOKIE_NAME]) {
@@ -80,7 +96,7 @@ class Quiz {
         }
         $this->_cookie = json_decode($_COOKIE[COOKIE_NAME], true);
       } else {
-        // No cookie yet
+        // No cookie yet, initialize one
         $this->_cookie = Array();
       }
     }
@@ -88,11 +104,13 @@ class Quiz {
     return $this->_cookie;
   }
 
+  // Helper method for serializing and setting the cookie
   public function set_cookie($cookie) {
     $this->_cookie = $cookie;
     setcookie(COOKIE_NAME, json_encode($this->_cookie), time() + COOKIE_TTL);
   }
 
+  // Adds the current question/answer to the cookie
   public function record_answer() {
     $cookie = $this->get_cookie();
 
@@ -102,6 +120,8 @@ class Quiz {
     $this->set_cookie($cookie);
   }
 
+
+  // Redirects to either next question or final result
   public function handle_redirect() {
     $next_question_key = $this->get_next_question();
     if ($next_question_key !== null) {
@@ -112,14 +132,15 @@ class Quiz {
     }
   }
 
+  // Finish quiz routine: determine result, log data, redirect to result
   public function finish_quiz() {
     $this->score_answer();
     $this->record_result();
     $this->redirect_to_result();
   }
 
+  // Add up all the result weights for the answers and calculate result
   public function score_answer() {
-    // all questions have been answered, score answers
     $score = Array();
     $cookie = $this->get_cookie();
     foreach ($cookie as $question => $answer) {
@@ -128,22 +149,23 @@ class Quiz {
       }
     }
 
-    // choose the result with the highest score
-    // if tie, will just pick first one
+    // Choose the result with the highest score
+    // If tie, just pick first one
+    // Set in $result property
     $this->result = array_keys($score, max($score))[0];
   }
 
+  // Records a user's answers and result in a CSV
   public function record_result() {
     $question_keys = array_keys($this->get_questions_data());
 
-    // if CSV file doesn't exist, create it and add header row
+    // If CSV file doesn't exist, create it and add header row
     if (!file_exists(RESULTS_CSV_PATH)) {
       $header = array_merge(['time'], $question_keys);
       array_push($header, 'result');
       $this->add_row_to_results_csv($header);
     }
 
-    // record answer in csv
     $row = [gmdate('Y-m-d h:i:s')];
     $cookie = $this->get_cookie();
     foreach ($question_keys as $question_key) {
@@ -153,6 +175,7 @@ class Quiz {
     $this->add_row_to_results_csv($row);
   }
 
+  // Redirect to URL for user's result
   public function redirect_to_result() {
     $url = $this->get_result_url($this->result);
 
@@ -163,6 +186,7 @@ class Quiz {
     $this->redirect_to($url);
   }
 
+  // Redirect to URL for a given question
   public function redirect_to_question($question) {
     $url = $this->get_question_url($question);
     if ($url === null) {
@@ -171,13 +195,15 @@ class Quiz {
     $this->redirect_to($url);
   }
 
+  // Helper method for redirecting
   public function redirect_to($url) {
     header("Location: " . $url);
     exit;
   }
 
+  // Get the question following the one just answered
+  // Null if quiz is complete
   public function get_next_question() {
-    // determine next question
     $questions = $this->get_questions_data();
     reset($questions);
     do {
@@ -189,15 +215,19 @@ class Quiz {
     return null;
   }
 
+  // Helper method for fatal errors
   public function log_error_and_exit($error) {
     $this->log_error($error);
     exit;
   }
 
+  // Helper method for formatting useful error messages
   public function log_error($error) {
     error_log('(' . $_SERVER['REMOTE_ADDR'] . ' - '  . $_SERVER['REQUEST_URI'] . '): ' . $error . ' -- COOKIE: ' . $_COOKIE[COOKIE_NAME]);
   }
 
+  // Helper method for safely adding a row to the results CSV
+  // Locks the file temporarily to prevent simultaneous writes
   public function add_row_to_results_csv($row) {
     $csv = fopen(RESULTS_CSV_PATH, 'a');
     if (flock($csv, LOCK_EX)) {
