@@ -29,15 +29,15 @@ While this project was made to power a quiz made up of YouTube videos, technical
 
 ### Setup
 
- - Copy all the [Quiz Maker files](https://github.com/peeinears/youtube-quiz-maker/blob/master/src) to your server
- - Fill in [quiz.json](https://github.com/peeinears/youtube-quiz-maker/blob/master/src/quiz.json) with the metadata for your quiz (more on that below)
- - Change `COOKIE_NAME` in [config.php](https://github.com/peeinears/youtube-quiz-maker/blob/master/src/config.php) to something unique
+ - Copy all the [Quiz Maker files](https://github.com/peeinears/youtube-quiz-maker/blob/master/quiz-maker) to your server
+ - Fill in [quiz.json](https://github.com/peeinears/youtube-quiz-maker/blob/master/quiz-maker/quiz.json) with the metadata for your quiz (more on that below)
+ - Change `COOKIE_NAME` in [config.php](https://github.com/peeinears/youtube-quiz-maker/blob/master/quiz-maker/config.php) to something unique
  - Navigate to /debug.php on your site to make sure everything's setup correctly
  - Copy answer URLs from /debug.php to use in corresponding answer links or annotations
 
 ### Quiz Metadata
 
-[The quiz metadata file](https://github.com/peeinears/youtube-quiz-maker/blob/master/src/quiz.json) is a [JSON](http://www.json.org/) file that gives the Quiz Maker code all the information about _your_ quiz.
+[The quiz metadata file](https://github.com/peeinears/youtube-quiz-maker/blob/master/quiz-maker/quiz.json) is a [JSON](http://www.json.org/) file that gives the Quiz Maker code all the information about _your_ quiz.
 
 It includes:
 
