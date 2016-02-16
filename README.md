@@ -19,7 +19,7 @@ When you choose each answer by clicking an annotation or link, you're briefly ta
 
 ### Just YouTube?
 
-While this project was made to power a quiz made up of YouTube videos, technically the question and result URLs can be anything (not just YouTube videos). Still, this project is really most useful when you're quiz content lives on a third-party domain you don't have full control over, like YouTube (unless you happen to work there). Also, this project assumes that each question and result lives at separate URLs, like YouTube videos. But there's no reason that this project wouldn't work with say, Tumblr posts or Vimeo videos, as long as there's a place to put the answer links.
+While this project was created to power a quiz made up of YouTube videos, technically the question and result URLs can be anything (not just YouTube videos). Still, this project is really most useful when your quiz content lives on a third-party domain you don't have full control over, like YouTube (unless you happen to work there). Also, this project assumes that each question and result lives at separate URLs, like YouTube videos. But there's no reason that this project wouldn't work with say, Tumblr posts or Vimeo videos, as long as there's a place to put the answer links.
 
 ## Make your own quiz
 
